@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Catálogo de Filmes</title>
+</head>
+<body>
+  <h2>🎬 Meus Filmes Favoritos</h2>
+
+  <p id="bemVindo"></p>
+  <button onclick="logout()">Sair</button>
+
+  <!-- Busca -->
+  <input type="text" id="busca" placeholder="🔎 Buscar por título..." oninput="filtrarFilmes()">
+  <br><br>
+
+  <!-- Área de controle do admin -->
+  <div id="adminControles" style="display: none;">
+    <button onclick="toggleFormulario()">➕ Novo Filme</button>
+  </div>
+
+  <!-- Formulário (apenas admin) -->
+  <form id="formFilme" style="display: none;">
+    <input type="text" name="titulo" placeholder="Título" required><br>
+    <input type="text" name="descricao" placeholder="Descrição"><br>
+    <input type="text" name="imagem_url" placeholder="URL da Imagem"><br>
+    <input type="text" name="genero" placeholder="Gênero" required><br>
+    <input type="text" name="classificacao" placeholder="Classificação" required><br>
+    <input type="text" name="streaming" placeholder="Onde assistir? (Netflix, Prime...)" required><br>
+    <button type="submit">Cadastrar Filme</button>
+  </form>
+
+  <hr>
+  <div id="listaFilmes"></div>
+
+  <!-- Script de controle local -->
+  <script>
+    window.onload = () => {
+      const nome = localStorage.getItem('usuarioNome');
+      const isAdmin = localStorage.getItem('isAdmin') === 'true';
+
+      if (!localStorage.getItem('usuarioId')) {
+        alert('Você precisa estar logado.');
+        window.location.href = '/login';
+        return;
+      }
+
+      document.getElementById('bemVindo').innerText = `Bem-vindo(a), ${nome}!`;
+
+      if (isAdmin) {
+        const controles = document.getElementById('adminControles');
+        if (controles) controles.style.display = 'block';
+      }
+    };
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = '/login';
+    }
+
+    function toggleFormulario() {
+      const form = document.getElementById('formFilme');
+      form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+  </script>
+
+  <!-- ✅ defer: espera HTML carregar antes de rodar -->
+  <script src="/js/catalogo.js" defer></script>
+</body>
+</html>

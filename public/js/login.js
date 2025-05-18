@@ -21,24 +21,21 @@ document.getElementById('formLogin').addEventListener('submit', async (e) => {
         // ✅ Salvar no localStorage
         localStorage.setItem('usuarioId', result.id);
         localStorage.setItem('usuarioNome', result.nome);
-        localStorage.setItem('isAdmin', result.is_admin);
+        localStorage.setItem('isAdmin', result.is_admin); // ← usado para exibir botão no catálogo
   
-        // Redireciona direto sem alert
-        window.location.href = '/catalogo';
+        alert(result.mensagem || 'Login realizado!');
+        window.location.href = '/catalogo'; // redireciona após login
       } else {
-        // Mostra erro no campo de mensagem
         document.getElementById('mensagem').innerText = result.erro || 'Erro no login';
+        
         setTimeout(() => {
-          document.getElementById('mensagem').innerText = '';
-        }, 4000);
-      }
+            document.getElementById('mensagem').innerText = '';
+          }, 4000);
+    }
   
     } catch (err) {
       console.error('Erro na requisição de login:', err);
-      document.getElementById('mensagem').innerText = 'Erro de conexão com o servidor';
-      setTimeout(() => {
-        document.getElementById('mensagem').innerText = '';
-      }, 4000);
+      alert('Erro de conexão com o servidor');
     }
   });
   

@@ -6,18 +6,15 @@ let editandoFilmeId = null;
 
 window.onload = () => {
   isAdmin = localStorage.getItem('isAdmin') === 'true';
-
   const nome = localStorage.getItem('usuarioNome');
   if (nome) {
     const perfilNome = document.getElementById('perfilNome');
     if (perfilNome) perfilNome.innerText = nome;
   }
-
   if (isAdmin) {
     const btnAdd = document.getElementById('btnAdicionarFilme');
     if (btnAdd) btnAdd.style.display = 'block';
   }
-
   carregarFilmes();
 };
 
@@ -35,20 +32,13 @@ if (form) {
       usuarioId: parseInt(usuarioId)
     };
     try {
-      let res;
-      if (editandoFilmeId) {
-        res = await fetch(`/api/filmes/${editandoFilmeId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-      } else {
-        res = await fetch('/api/filmes', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-      }
+      const url = editandoFilmeId ? `/api/filmes/${editandoFilmeId}` : '/api/filmes';
+      const method = editandoFilmeId ? 'PUT' : 'POST';
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
       const result = await res.json();
       alert(result.mensagem || result.erro || 'Erro desconhecido');
       if (res.ok) {
@@ -75,6 +65,107 @@ async function carregarFilmes() {
     console.error('Erro ao carregar filmes:', error);
     lista.innerHTML = '<p>Erro ao carregar filmes.</p>';
   }
+}
+
+function renderizarFilmes(listaFiltrada) {
+  lista.innerHTML = '';
+  const assistidos = JSON.parse(localStorage.getItem('assistidos')) || [];
+
+  if (listaFiltrada.length === 0) {
+    lista.innerHTML = '<p>Nenhum filme encontrado.</p>';
+    return;
+  }
+
+  listaFiltrada.forEach(filme => {
+    const div = document.createElement('div');
+    div.classList.add('card-filme');
+    if (assistidos.includes(filme.id)) div.classList.add('assistido');
+    div.innerHTML = `
+      <div class="imagem-container">
+        <img src="${filme.imagem_url}" alt="${filme.titulo}">
+        ${assistidos.includes(filme.id) ? '<div class="barra-progresso"></div>' : ''}
+      </div>
+      ${isAdmin ? `<button onclick="mostrarOpcoes(${filme.id}, event)">❌</button>` : ''}
+    `;
+    div.addEventListener('click', () => exibirDetalhes(filme));
+    lista.appendChild(div);
+  });
+}
+
+function exibirDetalhes(filme) {
+  let assistidos = JSON.parse(localStorage.getItem('assistidos')) || [];
+  if (!assistidos.includes(filme.id)) {
+    assistidos.push(filme.id);
+    localStorage.setItem('assistidos', JSON.stringify(assistidos));
+  }
+
+  const backdrop = document.createElement('div');
+  backdrop.id = 'backdrop';
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.innerHTML = `
+    <button class="fechar" title="Fechar">&times;</button>
+    <img src="${filme.imagem_url}" alt="${filme.titulo}">
+    <h2>${filme.titulo}</h2>
+    <p><strong>Descrição:</strong> ${filme.descricao}</p>
+    <p><strong>Gênero:</strong> ${filme.genero}</p>
+    <p><strong>Classificação:</strong> ${filme.classificacao}</p>
+    <p><strong>Onde assistir:</strong> ${filme.streaming}</p>
+  `;
+  modal.querySelector('.fechar').onclick = () => fecharModal();
+  backdrop.appendChild(modal);
+  document.body.appendChild(backdrop);
+
+  function fecharModal() {
+    if (document.body.contains(backdrop)) {
+      document.body.removeChild(backdrop);
+      document.removeEventListener('keydown', fecharComEsc);
+      backdrop.removeEventListener('click', fecharFora);
+      carregarFilmes(); // Re-renderiza após fechar
+    }
+  }
+
+  function fecharComEsc(e) {
+    if (e.key === 'Escape') fecharModal();
+  }
+
+  function fecharFora(e) {
+    if (e.target === backdrop) fecharModal();
+  }
+
+  document.addEventListener('keydown', fecharComEsc);
+  backdrop.addEventListener('click', fecharFora);
+}
+
+function abrirForm() {
+  const backdrop = document.getElementById('formBackdrop');
+  backdrop.style.display = 'flex';
+  backdrop.onclick = (e) => {
+    if (e.target === backdrop) fecharForm();
+  };
+  document.addEventListener('keydown', escFechaForm);
+}
+
+function fecharForm() {
+  const backdrop = document.getElementById('formBackdrop');
+  backdrop.style.display = 'none';
+  backdrop.onclick = null;
+  document.removeEventListener('keydown', escFechaForm);
+}
+
+function escFechaForm(e) {
+  if (e.key === 'Escape') fecharForm();
+}
+
+function preencherFormulario(filme) {
+  const form = document.getElementById('formFilme');
+  form.titulo.value = filme.titulo;
+  form.descricao.value = filme.descricao;
+  form.imagem_url.value = filme.imagem_url;
+  form.genero.value = filme.genero;
+  form.classificacao.value = filme.classificacao;
+  form.streaming.value = filme.streaming;
+  editandoFilmeId = filme.id;
 }
 
 function mostrarOpcoes(id, event) {
@@ -113,7 +204,6 @@ function mostrarOpcoes(id, event) {
 
   backdrop.appendChild(modal);
   document.body.appendChild(backdrop);
-
   document.addEventListener('keydown', function escListener(e) {
     if (e.key === 'Escape') {
       document.body.removeChild(backdrop);
@@ -129,7 +219,6 @@ async function deletarFilme(id) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ usuarioId: parseInt(usuarioId) })
     });
-
     const result = await res.json();
     alert(result.mensagem || result.erro);
     carregarFilmes();
@@ -137,76 +226,6 @@ async function deletarFilme(id) {
     console.error('Erro ao deletar filme:', error);
     alert('Erro ao deletar o filme');
   }
-}
-
-function filtrarFilmes() {
-  const termo = document.getElementById('busca').value.toLowerCase();
-  const filtrados = filmesTodos.filter(filme =>
-    filme.titulo.toLowerCase().includes(termo)
-  );
-  renderizarFilmes(filtrados);
-}
-
-function exibirDetalhes(filme) {
-  const backdrop = document.createElement('div');
-  backdrop.id = 'backdrop';
-
-  const modal = document.createElement('div');
-  modal.className = 'modal';
-  modal.innerHTML = `
-    <button class="fechar" title="Fechar">&times;</button>
-    <img src="${filme.imagem_url}" alt="${filme.titulo}">
-    <h2>${filme.titulo}</h2>
-    <p><strong>Descrição:</strong> ${filme.descricao}</p>
-    <p><strong>Gênero:</strong> ${filme.genero}</p>
-    <p><strong>Classificação:</strong> ${filme.classificacao}</p>
-    <p><strong>Onde assistir:</strong> ${filme.streaming}</p>
-  `;
-
-  modal.querySelector('.fechar').onclick = () => fecharModal();
-  backdrop.appendChild(modal);
-  document.body.appendChild(backdrop);
-
-  function fecharModal() {
-    if (document.body.contains(backdrop)) {
-      document.body.removeChild(backdrop);
-      document.removeEventListener('keydown', fecharComEsc);
-      backdrop.removeEventListener('click', fecharFora);
-    }
-  }
-
-  function fecharComEsc(e) {
-    if (e.key === 'Escape') fecharModal();
-  }
-
-  function fecharFora(e) {
-    if (e.target === backdrop) fecharModal();
-  }
-
-  document.addEventListener('keydown', fecharComEsc);
-  backdrop.addEventListener('click', fecharFora);
-}
-
-function renderizarFilmes(listaFiltrada) {
-  lista.innerHTML = '';
-
-  if (listaFiltrada.length === 0) {
-    lista.innerHTML = '<p>Nenhum filme encontrado.</p>';
-    return;
-  }
-
-  listaFiltrada.forEach(filme => {
-    const div = document.createElement('div');
-    div.classList.add('card-filme');
-
-    div.innerHTML = `
-      <img src="${filme.imagem_url}" alt="${filme.titulo}">
-      ${isAdmin ? `<button onclick="mostrarOpcoes(${filme.id}, event)">❌</button>` : ''}
-    `;
-
-    div.addEventListener('click', () => exibirDetalhes(filme));
-    lista.appendChild(div);
-  });
 }
 
 function gerarBotoesGenero(filmes) {
@@ -230,39 +249,6 @@ function gerarBotoesGenero(filmes) {
     };
     container.appendChild(btn);
   });
-}
-
-function abrirForm() {
-  const backdrop = document.getElementById('formBackdrop');
-  backdrop.style.display = 'flex';
-
-  backdrop.onclick = (e) => {
-    if (e.target === backdrop) fecharForm();
-  };
-
-  document.addEventListener('keydown', escFechaForm);
-}
-
-function fecharForm() {
-  const backdrop = document.getElementById('formBackdrop');
-  backdrop.style.display = 'none';
-  backdrop.onclick = null;
-  document.removeEventListener('keydown', escFechaForm);
-}
-
-function escFechaForm(e) {
-  if (e.key === 'Escape') fecharForm();
-}
-
-function preencherFormulario(filme) {
-  const form = document.getElementById('formFilme');
-  form.titulo.value = filme.titulo;
-  form.descricao.value = filme.descricao;
-  form.imagem_url.value = filme.imagem_url;
-  form.genero.value = filme.genero;
-  form.classificacao.value = filme.classificacao;
-  form.streaming.value = filme.streaming;
-  editandoFilmeId = filme.id;
 }
 
 function togglePerfilMenu() {

@@ -6,15 +6,16 @@ let editandoFilmeId = null;
 
 window.onload = () => {
   isAdmin = localStorage.getItem('isAdmin') === 'true';
-  if (isAdmin) {
-    const controles = document.getElementById('adminControles');
-    if (controles) controles.style.display = 'block';
-  }
 
   const nome = localStorage.getItem('usuarioNome');
   if (nome) {
     const perfilNome = document.getElementById('perfilNome');
     if (perfilNome) perfilNome.innerText = nome;
+  }
+
+  if (isAdmin) {
+    const btnAdd = document.getElementById('btnAdicionarFilme');
+    if (btnAdd) btnAdd.style.display = 'block';
   }
 
   carregarFilmes();

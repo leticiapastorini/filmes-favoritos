@@ -24,7 +24,7 @@
         <img src="/imagens/perfil-default.png" alt="Perfil" class="perfil-icon" onclick="togglePerfilMenu()">
         <div id="perfilMenu" class="perfil-menu">
           <p id="perfilNome">Usuário</p>
-          <button id="btnAdicionarFilme" onclick="abrirForm()" style="display: none;"> Adicionar Filme</button>
+          <button id="btnAdicionarFilme" onclick="abrirForm()" style="display: none;">Adicionar novo Filme</button>
           <button onclick="logout()">Sair</button>
         </div>
       </div>
@@ -33,38 +33,38 @@
 
   <main>
     <section class="cards" id="listaFilmes"></section>
-
-    <section id="adminControles" style="display: none;">
-      <button onclick="abrirForm()">➕ Novo Filme</button>
-
-      <div id="formBackdrop" class="backdrop" style="display: none;">
-        <div class="modal">
-          <button class="fechar" onclick="fecharForm()">×</button>
-          <form id="formFilme">
-            <input type="text" name="titulo" placeholder="Título" required><br>
-            <input type="text" name="descricao" placeholder="Descrição"><br>
-            <input type="text" name="imagem_url" placeholder="URL da Imagem"><br>
-            <input type="text" name="genero" placeholder="Gênero" required><br>
-            <input type="text" name="classificacao" placeholder="Classificação" required><br>
-            <input type="text" name="streaming" placeholder="Onde assistir?" required><br>
-            <button type="submit">Salvar</button>
-          </form>
-        </div>
-      </div>
-    </section>
   </main>
 
+  <!-- Modal de Novo Filme (fora da section para funcionar corretamente) -->
+  <div id="formBackdrop" class="backdrop" style="display: none;">
+    <div class="modal">
+      <button class="fechar" onclick="fecharForm()">×</button>
+      <form id="formFilme">
+        <input type="text" name="titulo" placeholder="Título" required><br>
+        <input type="text" name="descricao" placeholder="Descrição"><br>
+        <input type="text" name="imagem_url" placeholder="URL da Imagem"><br>
+        <input type="text" name="genero" placeholder="Gênero" required><br>
+        <input type="text" name="classificacao" placeholder="Classificação" required><br>
+        <input type="text" name="streaming" placeholder="Onde assistir?" required><br>
+        <button type="submit">Salvar</button>
+      </form>
+    </div>
+  </div>
+
   <script>
-    // Unificado: admin e nome do usuário
+    // Inicialização
     window.onload = () => {
       const isAdmin = localStorage.getItem('isAdmin') === 'true';
-      if (isAdmin) {
-        document.getElementById('adminControles').style.display = 'block';
+      const nome = localStorage.getItem('usuarioNome');
+
+      if (nome) {
+        const perfilNome = document.getElementById('perfilNome');
+        if (perfilNome) perfilNome.innerText = nome;
       }
 
-      const nome = localStorage.getItem('usuarioNome');
-      if (nome) {
-        document.getElementById('perfilNome').innerText = nome;
+      if (isAdmin) {
+        const btnAdd = document.getElementById('btnAdicionarFilme');
+        if (btnAdd) btnAdd.style.display = 'block';
       }
     };
 
@@ -84,7 +84,7 @@
       menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
     }
 
-    // Fecha menu de busca ao clicar fora
+    // Fecha menus ao clicar fora
     document.addEventListener('click', (event) => {
       const busca = document.getElementById('busca');
       const botao = document.getElementById('iconeBusca');

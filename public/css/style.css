@@ -387,18 +387,40 @@ body {
   }
   
   .perfil-menu button {
+    margin-top: 8px;
     background-color: #e50914;
-    color: #fff;
+    color: white;
     border: none;
     padding: 8px 12px;
-    border-radius: 4px;
-    font-weight: bold;
-    width: 100%;
+    border-radius: 5px;
     cursor: pointer;
-    transition: background 0.3s ease;
+    font-size: 14px;
+    width: 100%;
   }
   
   .perfil-menu button:hover {
-    background-color: #b00710;
+    background-color: #b20710;
+  }
+  
+  /* === MODAL FORM FILME === */
+  #formBackdrop .modal {
+    background-color: #1e1e1e;
+    color: #fff;
+    padding: 24px; /* aumenta o espaçamento interno */
+    border-radius: 12px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+    animation: aparecer 0.3s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    box-sizing: border-box; /* ESSENCIAL para não estourar largura */
+  }
+  
+  #formBackdrop .modal input {
+    width: 100%;
+    box-sizing: border-box; /* impede de passar da largura */
   }
   

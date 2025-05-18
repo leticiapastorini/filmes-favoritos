@@ -10,6 +10,13 @@ window.onload = () => {
     const controles = document.getElementById('adminControles');
     if (controles) controles.style.display = 'block';
   }
+
+  const nome = localStorage.getItem('usuarioNome');
+  if (nome) {
+    const perfilNome = document.getElementById('perfilNome');
+    if (perfilNome) perfilNome.innerText = nome;
+  }
+
   carregarFilmes();
 };
 
@@ -71,7 +78,6 @@ async function carregarFilmes() {
 
 function mostrarOpcoes(id, event) {
   if (event) event.stopPropagation();
-
   const filme = filmesTodos.find(f => f.id === id);
   if (!filme) return;
 
@@ -256,4 +262,9 @@ function preencherFormulario(filme) {
   form.classificacao.value = filme.classificacao;
   form.streaming.value = filme.streaming;
   editandoFilmeId = filme.id;
+}
+
+function togglePerfilMenu() {
+  const menu = document.getElementById('perfilMenu');
+  menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
 }

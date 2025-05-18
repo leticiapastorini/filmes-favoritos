@@ -19,7 +19,15 @@
         <img src="/imagens/lupa.png" alt="Buscar" style="width: 30px; height: 30px; vertical-align: middle;">
       </button>
       <input type="text" id="busca" placeholder="Buscar por título..." oninput="filtrarFilmes()">
-      <button class="logout" onclick="logout()">Sair</button>
+
+      <div class="perfil-container">
+        <img src="/imagens/perfil-default.png" alt="Perfil" class="perfil-icon" onclick="togglePerfilMenu()">
+        <div id="perfilMenu" class="perfil-menu">
+          <p id="perfilNome">Usuário</p>
+          <button id="btnAdicionarFilme" onclick="abrirForm()" style="display: none;"> Adicionar Filme</button>
+          <button onclick="logout()">Sair</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -27,31 +35,36 @@
     <section class="cards" id="listaFilmes"></section>
 
     <section id="adminControles" style="display: none;">
-        <button onclick="abrirForm()">➕ Novo Filme</button>
-      
-        <div id="formBackdrop" class="backdrop" style="display: none;">
-          <div class="modal">
-            <button class="fechar" onclick="fecharForm()">×</button>
-            <form id="formFilme">
-              <input type="text" name="titulo" placeholder="Título" required><br>
-              <input type="text" name="descricao" placeholder="Descrição"><br>
-              <input type="text" name="imagem_url" placeholder="URL da Imagem"><br>
-              <input type="text" name="genero" placeholder="Gênero" required><br>
-              <input type="text" name="classificacao" placeholder="Classificação" required><br>
-              <input type="text" name="streaming" placeholder="Onde assistir?" required><br>
-              <button type="submit">Salvar</button>
-            </form>
-          </div>
+      <button onclick="abrirForm()">➕ Novo Filme</button>
+
+      <div id="formBackdrop" class="backdrop" style="display: none;">
+        <div class="modal">
+          <button class="fechar" onclick="fecharForm()">×</button>
+          <form id="formFilme">
+            <input type="text" name="titulo" placeholder="Título" required><br>
+            <input type="text" name="descricao" placeholder="Descrição"><br>
+            <input type="text" name="imagem_url" placeholder="URL da Imagem"><br>
+            <input type="text" name="genero" placeholder="Gênero" required><br>
+            <input type="text" name="classificacao" placeholder="Classificação" required><br>
+            <input type="text" name="streaming" placeholder="Onde assistir?" required><br>
+            <button type="submit">Salvar</button>
+          </form>
         </div>
-      </section>
-      
+      </div>
+    </section>
   </main>
 
   <script>
+    // Unificado: admin e nome do usuário
     window.onload = () => {
       const isAdmin = localStorage.getItem('isAdmin') === 'true';
       if (isAdmin) {
         document.getElementById('adminControles').style.display = 'block';
+      }
+
+      const nome = localStorage.getItem('usuarioNome');
+      if (nome) {
+        document.getElementById('perfilNome').innerText = nome;
       }
     };
 
@@ -60,21 +73,23 @@
       window.location.href = '/login';
     }
 
-    function toggleFormulario() {
-      const form = document.getElementById('formFilme');
-      form.style.display = form.style.display === 'none' ? 'block' : 'none';
-    }
-
     function toggleBusca() {
       const busca = document.getElementById('busca');
       busca.classList.toggle('ativo');
       if (busca.classList.contains('ativo')) busca.focus();
     }
 
-    // Oculta o campo de busca ao clicar fora
+    function togglePerfilMenu() {
+      const menu = document.getElementById('perfilMenu');
+      menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    // Fecha menu de busca ao clicar fora
     document.addEventListener('click', (event) => {
       const busca = document.getElementById('busca');
       const botao = document.getElementById('iconeBusca');
+      const perfilIcon = document.querySelector('.perfil-icon');
+      const perfilMenu = document.getElementById('perfilMenu');
 
       if (
         busca.classList.contains('ativo') &&
@@ -83,24 +98,18 @@
       ) {
         busca.classList.remove('ativo');
       }
+
+      if (
+        perfilMenu &&
+        perfilIcon &&
+        !perfilMenu.contains(event.target) &&
+        !perfilIcon.contains(event.target)
+      ) {
+        perfilMenu.style.display = 'none';
+      }
     });
   </script>
-<!-- Modal de Novo Filme -->
-<div id="formBackdrop" class="backdrop" style="display: none;">
-    <div class="modal" id="modalForm">
-      <button class="fechar" onclick="fecharForm()">×</button>
-      <form id="formFilme">
-        <input type="text" name="titulo" placeholder="Título" required><br>
-        <input type="text" name="descricao" placeholder="Descrição"><br>
-        <input type="text" name="imagem_url" placeholder="URL da Imagem"><br>
-        <input type="text" name="genero" placeholder="Gênero" required><br>
-        <input type="text" name="classificacao" placeholder="Classificação" required><br>
-        <input type="text" name="streaming" placeholder="Onde assistir?" required><br>
-        <button type="submit">Salvar</button>
-      </form>
-    </div>
-  </div>
-  
+
   <script src="/js/catalogo.js" defer></script>
 </body>
 </html>

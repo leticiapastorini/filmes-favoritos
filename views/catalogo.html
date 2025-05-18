@@ -2,54 +2,56 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Catálogo de Filmes</title>
+  <title>Catálogo</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" type="image/svg+xml" href="/icons/lupa.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-  <h2>🎬 Meus Filmes Favoritos</h2>
+  <div class="topo">
+    <div class="logo-generos">
+      <span class="logo">🎬 Meus Filmes</span>
+      <div class="menu-generos" id="filtrosGenero"></div>
+    </div>
 
-  <p id="bemVindo"></p>
-  <button onclick="logout()">Sair</button>
-
-  <!-- Busca -->
-  <input type="text" id="busca" placeholder="🔎 Buscar por título..." oninput="filtrarFilmes()">
-  <br><br>
-
-  <!-- Área de controle do admin -->
-  <div id="adminControles" style="display: none;">
-    <button onclick="toggleFormulario()">➕ Novo Filme</button>
+    <div class="barra-direita">
+      <button id="iconeBusca" onclick="toggleBusca()">
+        <img src="/imagens/lupa.png" alt="Buscar" style="width: 30px; height: 30px; vertical-align: middle;">
+      </button>
+      <input type="text" id="busca" placeholder="Buscar por título..." oninput="filtrarFilmes()">
+      <button class="logout" onclick="logout()">Sair</button>
+    </div>
   </div>
 
-  <!-- Formulário (apenas admin) -->
-  <form id="formFilme" style="display: none;">
-    <input type="text" name="titulo" placeholder="Título" required><br>
-    <input type="text" name="descricao" placeholder="Descrição"><br>
-    <input type="text" name="imagem_url" placeholder="URL da Imagem"><br>
-    <input type="text" name="genero" placeholder="Gênero" required><br>
-    <input type="text" name="classificacao" placeholder="Classificação" required><br>
-    <input type="text" name="streaming" placeholder="Onde assistir? (Netflix, Prime...)" required><br>
-    <button type="submit">Cadastrar Filme</button>
-  </form>
+  <main>
+    <section class="cards" id="listaFilmes"></section>
 
-  <hr>
-  <div id="listaFilmes"></div>
+    <section id="adminControles" style="display: none;">
+        <button onclick="abrirForm()">➕ Novo Filme</button>
+      
+        <div id="formBackdrop" class="backdrop" style="display: none;">
+          <div class="modal">
+            <button class="fechar" onclick="fecharForm()">×</button>
+            <form id="formFilme">
+              <input type="text" name="titulo" placeholder="Título" required><br>
+              <input type="text" name="descricao" placeholder="Descrição"><br>
+              <input type="text" name="imagem_url" placeholder="URL da Imagem"><br>
+              <input type="text" name="genero" placeholder="Gênero" required><br>
+              <input type="text" name="classificacao" placeholder="Classificação" required><br>
+              <input type="text" name="streaming" placeholder="Onde assistir?" required><br>
+              <button type="submit">Salvar</button>
+            </form>
+          </div>
+        </div>
+      </section>
+      
+  </main>
 
-  <!-- Script de controle local -->
   <script>
     window.onload = () => {
-      const nome = localStorage.getItem('usuarioNome');
       const isAdmin = localStorage.getItem('isAdmin') === 'true';
-
-      if (!localStorage.getItem('usuarioId')) {
-        alert('Você precisa estar logado.');
-        window.location.href = '/login';
-        return;
-      }
-
-      document.getElementById('bemVindo').innerText = `Bem-vindo(a), ${nome}!`;
-
       if (isAdmin) {
-        const controles = document.getElementById('adminControles');
-        if (controles) controles.style.display = 'block';
+        document.getElementById('adminControles').style.display = 'block';
       }
     };
 
@@ -62,9 +64,43 @@
       const form = document.getElementById('formFilme');
       form.style.display = form.style.display === 'none' ? 'block' : 'none';
     }
-  </script>
 
-  <!-- ✅ defer: espera HTML carregar antes de rodar -->
+    function toggleBusca() {
+      const busca = document.getElementById('busca');
+      busca.classList.toggle('ativo');
+      if (busca.classList.contains('ativo')) busca.focus();
+    }
+
+    // Oculta o campo de busca ao clicar fora
+    document.addEventListener('click', (event) => {
+      const busca = document.getElementById('busca');
+      const botao = document.getElementById('iconeBusca');
+
+      if (
+        busca.classList.contains('ativo') &&
+        !busca.contains(event.target) &&
+        !botao.contains(event.target)
+      ) {
+        busca.classList.remove('ativo');
+      }
+    });
+  </script>
+<!-- Modal de Novo Filme -->
+<div id="formBackdrop" class="backdrop" style="display: none;">
+    <div class="modal" id="modalForm">
+      <button class="fechar" onclick="fecharForm()">×</button>
+      <form id="formFilme">
+        <input type="text" name="titulo" placeholder="Título" required><br>
+        <input type="text" name="descricao" placeholder="Descrição"><br>
+        <input type="text" name="imagem_url" placeholder="URL da Imagem"><br>
+        <input type="text" name="genero" placeholder="Gênero" required><br>
+        <input type="text" name="classificacao" placeholder="Classificação" required><br>
+        <input type="text" name="streaming" placeholder="Onde assistir?" required><br>
+        <button type="submit">Salvar</button>
+      </form>
+    </div>
+  </div>
+  
   <script src="/js/catalogo.js" defer></script>
 </body>
 </html>

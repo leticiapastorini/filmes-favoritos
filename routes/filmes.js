@@ -59,4 +59,28 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// Atualizar filme
+router.put('/:id', async (req, res) => {
+    const { id } = req.params;
+    const { titulo, descricao, imagem_url, genero, classificacao, streaming, usuarioId } = req.body;
+  
+    const isAdmin = await verificarAdmin(usuarioId);
+    if (!isAdmin) {
+      return res.status(403).json({ erro: 'Apenas administradores podem editar filmes' });
+    }
+  
+    try {
+      await pool.query(
+        `UPDATE filmes
+         SET titulo = $1, descricao = $2, imagem_url = $3, genero = $4, classificacao = $5, streaming = $6
+         WHERE id = $7`,
+        [titulo, descricao, imagem_url, genero, classificacao, streaming, id]
+      );
+      res.json({ mensagem: 'Filme atualizado com sucesso' });
+    } catch (err) {
+      console.error('Erro ao atualizar filme:', err);
+      res.status(500).json({ erro: 'Erro ao atualizar o filme' });
+    }
+  });
+  
 module.exports = router;

@@ -255,3 +255,12 @@ function togglePerfilMenu() {
   const menu = document.getElementById('perfilMenu');
   menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
 }
+
+window.filtrarFilmes = function () {
+    const termo = document.getElementById('busca').value.toLowerCase();
+    const filtrados = filmesTodos.filter(filme =>
+      filme.titulo.toLowerCase().includes(termo)
+    );
+    renderizarFilmes(filtrados);
+  }
+  

@@ -120,3 +120,11 @@ body {
     text-decoration: underline;
   }
   
+  .logo-login {
+    display: block;
+    margin: 0 auto 20px auto; /* centralizado e com espaçamento abaixo */
+    height: 40px;
+    transform: scale(2.5);
+    transform-origin: center;
+  }
+  
